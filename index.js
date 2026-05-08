@@ -18,6 +18,7 @@ const cors = require("cors");
 const port = process.env.PORT || 5000;
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { log } = require("node:console");
 
 // Adds headers: Access-Control-Allow-Origin: *
 app.use(cors());
@@ -54,6 +55,37 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+
+
+    app.patch("/users/:id", async(req, res) => {
+      const id = req.params.id;
+
+      const filter = {
+        _id : new ObjectId(id)
+      }
+
+      const modifiedUser = req.body
+      const updatedDocu = {
+        $set : {
+            name : modifiedUser.name,
+            email : modifiedUser.email,
+            role : modifiedUser.role
+        }
+      }
+      const ressult = await userCollection.updateOne(filter, updatedDocu);
+      res.send(ressult);
+    //   / Update the first document that matches the filter
+    // const result = await movies.updateOne(filter, updateDoc, options);
+
+    })
+
+    app.post('/users', async(req, res) => {
+      const newUser = req.body
+      console.log('user to be interted', newUser);
+      
+      const ressult = await userCollection.insertOne(newUser);
+      res.send(ressult);
+    })
 
     app.get("/users/:id", async (req, res) => {
       // console.log(req.params);
